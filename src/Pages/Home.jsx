@@ -61,11 +61,7 @@ const Home = () => {
         {/* Top Branding Image (instant load) */}
         <div className="max-w-md mx-auto mb-8 mt-3 px-4">
           <div className="rounded-md overflow-hidden shadow-2xl border border-white/80">
-            <img
-              src={candidateInfo.mainWhatsappBrandingImage}
-              alt="Political campaign"
-              className="w-full h-auto object-cover"
-            />
+           
           </div>
         </div>
 

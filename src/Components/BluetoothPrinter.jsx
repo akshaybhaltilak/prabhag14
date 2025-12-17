@@ -222,8 +222,8 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
       message += `*मतदान केंद्र:* ${safeString(voterData.pollingStationAddress || 'N/A')}\n\n`;
     }
 
-    message += `मी आपला *${safeString(candidateInfo.name)}* माझी निशाणी *${safeString(candidateInfo.electionSymbol)}* या चिन्हावर मतदान करून मला प्रचंड बहुमतांनी विजय करा\n\n`;
-    message += `📍 *अधिक माहितीसाठी भेट द्या:* ${WEBSITE_URL}`;
+    message += `*${safeString(candidateInfo.namecan)}* आमची निशाणी *${safeString(candidateInfo.electionSymbol)}* या चिन्हावर मतदान करून आम्हाला प्रचंड बहुमतांनी विजय करा\n\n`;
+   ;
 
     return message;
   };
