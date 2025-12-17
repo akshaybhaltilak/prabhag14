@@ -11,8 +11,8 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "Washim 7",
-        short_name: "Washim 7",
+        name: "Akola 14",
+        short_name: "Akola 14",
         start_url: "/",
         display: "standalone",
         background_color: "#ffffff",
