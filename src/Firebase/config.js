@@ -3,13 +3,13 @@ import { initializeApp } from "firebase/app";
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDEcuZVvQectcHwKjfnaI4Dt770GnwTC6w",
-  authDomain: "akolaprabhag14.firebaseapp.com",
-  databaseURL: "https://akolaprabhag14-default-rtdb.firebaseio.com",
-  projectId: "akolaprabhag14",
-  storageBucket: "akolaprabhag14.firebasestorage.app",
-  messagingSenderId: "780967918738",
-  appId: "1:780967918738:web:31427237c4a2e200a27a4b"
+  apiKey: "AIzaSyD0RpzYDJnNGszojtI_BVkjLkUWbHyPkOU",
+  authDomain: "pratiktondedemo.firebaseapp.com",
+  databaseURL: "https://pratiktondedemo-default-rtdb.firebaseio.com",
+  projectId: "pratiktondedemo",
+  storageBucket: "pratiktondedemo.firebasestorage.app",
+  messagingSenderId: "210106333841",
+  appId: "1:210106333841:web:5cdf24ec0f0dc79c6a1d30"
 };
 
 // Initialize Firebase App
