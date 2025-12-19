@@ -18,14 +18,14 @@ export const CandidateProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // Default candidate information
-  const defaultCandidateInfo = {
+   const defaultCandidateInfo = {
     mainFrontImage:'',
     mainWhatsappBrandingImage:'', 
     logoImageCircle: "/logobjp.jpg",
     TagLine: "अकोला महानगरपालिका सार्वत्रिक निवडणूक २०२६",
     ReSellerName: "Powered By JanNetaa",
-    name: 'अकोला प्रभाग क्रमांक १४',
-    namecan: 'गोपाल रघुनाथ मुळे आणि सौ दिपाली प्रविण जगताप',
+    name: 'अकोला प्रभाग क्रमांक 14',
+    namecan: '',
     party: "भारतीय जनता पार्टी",
     electionSymbol: "कमळ",
     slogan:'सबका साथ, सबका विकास',
