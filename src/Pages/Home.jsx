@@ -7,6 +7,8 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 // Simple image slider component (height 40px) — update `bannerImages` with your public URLs
 const BannerSlider = ({ images }) => {
   const bannerImages = images || [
+    // 'https://res.cloudinary.com/dkrslpxmh/image/upload/v1766151106/WhatsApp_Image_2025-12-19_at_6.44.37_PM_lypwv7.jpg',
+    // 'https://res.cloudinary.com/dkrslpxmh/image/upload/v1766151106/WhatsApp_Image_2025-12-19_at_6.44.16_PM_gvtojn.jpg',
     'https://res.cloudinary.com/dkrslpxmh/image/upload/v1766151106/WhatsApp_Image_2025-12-19_at_6.44.37_PM_lypwv7.jpg',
     'https://res.cloudinary.com/dkrslpxmh/image/upload/v1766151106/WhatsApp_Image_2025-12-19_at_6.44.16_PM_gvtojn.jpg',
   ];
@@ -53,10 +55,10 @@ const Home = () => {
       action: () => navigate('/lists'),
     },
     {
-      id: 'survey',
-      title: 'Survey',
-      image: 'https://cdn-icons-png.flaticon.com/128/7527/7527291.png',
-      action: () => navigate('/survey'),
+      id: 'slip',
+      title: 'Slip',
+      image: 'https://cdn-icons-png.flaticon.com/128/8304/8304482.png',
+      action: () => navigate('/slip'),
     },
     {
       id: 'booth-management',
