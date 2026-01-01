@@ -507,7 +507,7 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
     message += `(अ) सौ दिपाली प्रवीण जगताप\n`;
     message += `(ब) सौ अस्मिता प्रकाश वगारे\n`;
     message += `(क) गोपाल रघुनाथ मुळे\n`;
-    message += `(ड) सागर प्रकाशराव शेगोकार\n`;
+    message += `(ड) दिलीप तुळशीराम भरणे\n`;
 
     return message;
   };
