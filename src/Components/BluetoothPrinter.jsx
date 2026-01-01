@@ -32,7 +32,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
   const { candidateInfo } = useCandidate();
 
   // Website URL - update this with your actual domain
-  const WEBSITE_URL = "https://akolaprabhag3.vercel.app/";
+  const WEBSITE_URL = "https://jannetaa.vercel.app/preview/Prabhag14BJP";
 
   useEffect(() => {
     // Initialize from global connection state
