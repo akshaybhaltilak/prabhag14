@@ -32,7 +32,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
   const { candidateInfo } = useCandidate();
 
   // Website URL - update this with your actual domain
-  const WEBSITE_URL = "https://webreich.vercel.app/";
+  const WEBSITE_URL = "https://akolaprabhag3.vercel.app/";
 
   useEffect(() => {
     // Initialize from global connection state
@@ -79,7 +79,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
     // Check if Contact Picker API is supported
     if (!('contacts' in navigator && 'ContactsManager' in window)) {
       alert('संपर्क आयात आपल्या ब्राउझरमध्ये समर्थित नाही. कृपया नंबर मॅन्युअली टाका.');
-      return;
+      return; 
     }
 
     setImportingContact(true);
@@ -297,7 +297,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
     }
 
     message += `${safeString(candidateInfo.messageWhatsapp)}`
-    message += `📍 *अधिक माहितीसाठी भेट द्या:* ${WEBSITE_URL}`;
+    message += `\n${WEBSITE_URL}`;
 
     return message;
   };

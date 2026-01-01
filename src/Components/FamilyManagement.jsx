@@ -37,6 +37,7 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
   const [pendingSyncItems, setPendingSyncItems] = useState([]);
   const [availableVoters, setAvailableVoters] = useState([]);
   const [filteredVoters, setFilteredVoters] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const loadingRef = useRef(false);
   const modalDebounceRef = useRef(null);
@@ -178,14 +179,30 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
     const loadData = async () => {
       try {
         console.log('🔄 Loading data for voter:', currentVoterId);
+        setIsLoading(true);
 
         // Load base voter data
         const voterRef = doc(db, 'voters', String(currentVoterId));
         const voterSnap = await getDoc(voterRef);
 
-        const baseData = voterSnap.exists()
-          ? { ...voterSnap.data(), id: voterSnap.id }
-          : { ...(voter || {}), id: currentVoterId };
+        let baseData = {};
+        if (voterSnap.exists()) {
+          baseData = { ...voterSnap.data(), id: voterSnap.id };
+        } else if (voter) {
+          baseData = { 
+            id: currentVoterId,
+            name: voter.name || 'Unknown',
+            voterId: voter.voterId || currentVoterId,
+            serialNumber: voter.serialNumber || '',
+            gender: voter.gender || '',
+            age: voter.age || '',
+            boothNumber: voter.boothNumber || '',
+            pollingStationAddress: voter.pollingStationAddress || '',
+            ...voter 
+          };
+        } else {
+          baseData = { id: currentVoterId, name: 'Unknown' };
+        }
 
         // Load survey data (family members and WhatsApp)
         const surveyData = await loadSurveyDoc(currentVoterId);
@@ -204,16 +221,21 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
         console.log('👨‍👩‍👧‍👦 Final family members:', familyMembersArray);
 
         if (!cancelled) {
-          setVoterData({
+          const finalVoterData = {
             ...baseData,
             familyMembers: familyMembersArray,
             whatsapp: surveyData?.whatsapp || ''
-          });
+          };
+          setVoterData(finalVoterData);
           setFamilyMembers(familyMembersArray);
+          setIsLoading(false);
         }
 
       } catch (err) {
         console.error('❌ Error loading voter data:', err);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -435,39 +457,70 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
     return success;
   };
 
+  // 🔸 FIXED: Enhanced WhatsApp message generation - works even with 0 family members
   const generateFamilyWhatsAppMessage = () => {
-    if (!voterData || !familyMembers.length) return '';
+    if (!voterData) {
+      console.error('No voter data available');
+      return '';
+    }
 
-    let message = `*${candidateInfo?.party || ''}*\n`;
-    message += `*${candidateInfo?.name || ''}*\n\n`;
+    // Safely get voter details with fallbacks
+    const voterName = voterData?.name || 'Unknown';
+    const voterSerial = voterData?.serialNumber || 'N/A';
+    const voterId = voterData?.voterId || currentVoterId || 'N/A';
+    const voterBooth = voterData?.boothNumber || 'N/A';
+    const voterGender = voterData?.gender || 'N/A';
+    const voterAge = voterData?.age || 'N/A';
+    const voterStation = voterData?.pollingStationAddress || 'N/A';
+
+    let message = `*${candidateInfo?.party || 'भारतीय जनता पक्ष'}*\n`;
+    message += `*${candidateInfo?.name || 'उमेदवार'}*\n\n`;
 
     message += `*कुटुंब तपशील*\n\n`;
-    message += `*1) ${voterData.name}*\n`;
-    message += `अनुक्रमांक: ${voterData.serialNumber || 'N/A'}\n`;
-    message += `मतदार आयडी: ${voterData.voterId || 'N/A'}\n`;
-    message += `बूथ क्र.: ${voterData.boothNumber || 'N/A'}\n`;
-    message += `लिंग: ${voterData.gender || 'N/A'}\n`;
-    message += `वय: ${voterData.age || 'N/A'}\n`;
-    message += `मतदान केंद्र: ${voterData.pollingStationAddress || 'N/A'}\n\n`;
+    
+    // Always include the main voter
+    message += `*1) ${voterName}*\n`;
+    message += `अनुक्रमांक: ${voterSerial}\n`;
+    message += `मतदार आयडी: ${voterId}\n`;
+    message += `बूथ क्र.: ${voterBooth}\n`;
+    message += `लिंग: ${voterGender}\n`;
+    message += `वय: ${voterAge}\n`;
+    message += `मतदान केंद्र: ${voterStation}\n\n`;
 
-    familyMembers.forEach((member, index) => {
-      message += `*${index + 2}) ${member.name}*\n`;
-      message += `अनुक्रमांक: ${member.serialNumber || 'N/A'}\n`;
-      message += `मतदार आयडी: ${member.voterId || 'N/A'}\n`;
-      message += `बूथ क्र.: ${member.boothNumber || 'N/A'}\n`;
-      message += `लिंग: ${member.gender || 'N/A'}\n`;
-      message += `वय: ${member.age || 'N/A'}\n`;
-      message += `मतदान केंद्र: ${member.pollingStationAddress || 'N/A'}\n\n`;
-    });
+    // Include family members if they exist
+    if (familyMembers && familyMembers.length > 0) {
+      familyMembers.forEach((member, index) => {
+        message += `*${index + 2}) ${member.name || 'Unknown'}*\n`;
+        message += `अनुक्रमांक: ${member.serialNumber || 'N/A'}\n`;
+        message += `मतदार आयडी: ${member.voterId || member.id || 'N/A'}\n`;
+        message += `बूथ क्र.: ${member.boothNumber || 'N/A'}\n`;
+        message += `लिंग: ${member.gender || 'N/A'}\n`;
+        message += `वय: ${member.age || 'N/A'}\n`;
+        message += `मतदान केंद्र: ${member.pollingStationAddress || 'N/A'}\n\n`;
+      });
+    } else {
+      message += `*कुटुंबात इतर सदस्य नाहीत*\n\n`;
+    }
 
-    message += `मी आपला *${candidateInfo?.name || ''}* माझी निशाणी *${candidateInfo?.electionSymbol || ''}* या चिन्हावर मतदान करून मला प्रचंड बहुमतांनी विजय करा\n\n`;
+    message += `भारतीय जनता पक्षाचे अधिकृत उमेदवार यांना भारतीय जनता पक्षाच्या(कमळ) चिन्हावर मतदान करून प्रचंड बहुमतांनी विजयी करा.\n\n`;
+    message += `*आपले उमेदवार:*\n`;
+    message += `(अ) सौ दिपाली प्रवीण जगताप\n`;
+    message += `(ब) सौ अस्मिता प्रकाश वगारे\n`;
+    message += `(क) गोपाल रघुनाथ मुळे\n`;
+    message += `(ड) सागर प्रकाशराव शेगोकार\n`;
 
     return message;
   };
 
   const handleWhatsAppShare = async () => {
-    if (familyMembers.length === 0) {
-      alert('No family members to share.');
+    if (isLoading || !voterData) {
+      alert('Voter data is still loading. Please wait...');
+      return;
+    }
+
+    // FIXED: Allow sharing even with 0 family members
+    if (!voterData) {
+      alert('No voter data available.');
       return;
     }
 
@@ -499,11 +552,17 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
     }
   };
 
-  // 🔸 Enhanced Print Family Function with Main Voter Details
+  // 🔸 FIXED: Enhanced Print Family Function - works even with 0 family members
   const printFamilyViaBluetooth = async () => {
     console.log('🧾 Starting family print for voter:', currentVoterId);
     console.log('👨 Main voter details:', voterData);
     console.log('👨‍👩‍👧‍👦 Current family members:', familyMembers);
+
+    // Check if data is still loading
+    if (isLoading) {
+      alert('Voter data is still loading. Please wait...');
+      return;
+    }
 
     // Check if we have valid voter data
     if (!voterData) {
@@ -511,43 +570,50 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
       return;
     }
 
-    // Check if we have valid family members
-    if (!familyMembers || familyMembers.length === 0) {
-      alert('No family members found to print.');
-      return;
-    }
-
-    // Validate that family members have required data
-    const validFamilyMembers = familyMembers.filter(member =>
-      member && member.voterId && member.name
+    // Allow printing even with 0 family members
+    const familyMembersToPrint = familyMembers || [];
+    
+    // Validate family members (filter out any invalid ones)
+    const validFamilyMembers = familyMembersToPrint.filter(member =>
+      member && (member.voterId || member.id) && member.name
     );
 
-    if (validFamilyMembers.length === 0) {
-      alert('No valid family members with complete data found.');
-      return;
-    }
-
-    console.log('✅ Valid family members for printing:', validFamilyMembers);
+    console.log('✅ Main voter for printing:', voterData);
+    console.log('✅ Valid family members for printing:', validFamilyMembers.length);
 
     try {
       setPrinting(true);
 
+      // Safely get main voter details with comprehensive fallbacks
+      const mainVoter = {
+        name: voterData.name || 'Unknown',
+        voterNameEng: voterData.voterNameEng || '',
+        voterId: voterData.voterId || currentVoterId || 'N/A',
+        serialNumber: voterData.serialNumber || 'N/A',
+        boothNumber: voterData.boothNumber || 'N/A',
+        gender: voterData.gender || 'N/A',
+        age: voterData.age || 'N/A',
+        pollingStationAddress: voterData.pollingStationAddress || 'N/A',
+        houseNumber: voterData.houseNumber || 'N/A',
+        address: voterData.address || 'N/A'
+      };
+
       // Prepare complete family data including main voter
       const completeFamilyData = {
-        mainVoter: {
-          name: voterData.name || 'N/A',
-          voterId: voterData.voterId || 'N/A',
-          serialNumber: voterData.serialNumber || 'N/A',
-          boothNumber: voterData.boothNumber || 'N/A',
-          gender: voterData.gender || 'N/A',
-          age: voterData.age || 'N/A',
-          pollingStationAddress: voterData.pollingStationAddress || 'N/A'
-        },
+        mainVoter,
         familyMembers: validFamilyMembers,
-        candidateInfo: candidateInfo,
-        totalMembers: validFamilyMembers.length + 1,
-        printDate: new Date().toLocaleString()
+        candidateInfo: candidateInfo || {},
+        totalMembers: validFamilyMembers.length + 1, // Include main voter
+        printDate: new Date().toLocaleString('en-IN', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
       };
+
+      console.log('📄 Complete data for printing:', completeFamilyData);
 
       // Use Bluetooth printer if available
       if (typeof window.printFamily === 'function') {
@@ -732,6 +798,16 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
               opacity: 0.8;
               margin-top: 5px;
             }
+            .no-family {
+              text-align: center;
+              padding: 30px;
+              color: #6b7280;
+              font-style: italic;
+              background: #f9fafb;
+              border: 2px dashed #d1d5db;
+              border-radius: 12px;
+              margin-top: 20px;
+            }
             @media print {
               body { 
                 background: white !important;
@@ -744,6 +820,9 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
               .family-member { 
                 break-inside: avoid;
                 box-shadow: none;
+              }
+              .no-family {
+                break-inside: avoid;
               }
             }
           </style>
@@ -767,6 +846,7 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
               <!-- Main Voter -->
               <div class="family-member main-voter">
                 <div class="member-header">1) ${mainVoter.name}</div>
+                ${mainVoter.voterNameEng ? `<div class="detail-item"><span class="detail-label">English Name</span><span class="detail-value">${mainVoter.voterNameEng}</span></div>` : ''}
                 <div class="member-details">
                   <div class="detail-item">
                     <span class="detail-label">Voter ID</span>
@@ -784,6 +864,8 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
                     <span class="detail-label">Age & Gender</span>
                     <span class="detail-value">${mainVoter.age} | ${mainVoter.gender}</span>
                   </div>
+                  ${mainVoter.houseNumber !== 'N/A' ? `<div class="detail-item"><span class="detail-label">House Number</span><span class="detail-value">${mainVoter.houseNumber}</span></div>` : ''}
+                  ${mainVoter.address !== 'N/A' ? `<div class="detail-item"><span class="detail-label">Address</span><span class="detail-value">${mainVoter.address}</span></div>` : ''}
                   <div class="polling-station">
                     <span class="detail-label">Polling Station Address</span>
                     <span class="detail-value">${mainVoter.pollingStationAddress}</span>
@@ -791,36 +873,46 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
                 </div>
               </div>
 
-              <div class="section-title">Family Members (${familyMembers.length})</div>
-              
-              <!-- Family Members -->
-              ${familyMembers.map((member, index) => `
-                <div class="family-member">
-                  <div class="member-header">${index + 2}) ${member.name || 'N/A'}</div>
-                  <div class="member-details">
-                    <div class="detail-item">
-                      <span class="detail-label">Voter ID</span>
-                      <span class="detail-value">${member.voterId || 'N/A'}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="detail-label">Serial Number</span>
-                      <span class="detail-value">${member.serialNumber || 'N/A'}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="detail-label">Booth Number</span>
-                      <span class="detail-value">${member.boothNumber || 'N/A'}</span>
-                    </div>
-                    <div class="detail-item">
-                      <span class="detail-label">Age & Gender</span>
-                      <span class="detail-value">${member.age || 'N/A'} | ${member.gender || 'N/A'}</span>
-                    </div>
-                    <div class="polling-station">
-                      <span class="detail-label">Polling Station Address</span>
-                      <span class="detail-value">${member.pollingStationAddress || 'N/A'}</span>
+              ${familyMembers.length > 0 ? `
+                <div class="section-title">Family Members (${familyMembers.length})</div>
+                
+                <!-- Family Members -->
+                ${familyMembers.map((member, index) => `
+                  <div class="family-member">
+                    <div class="member-header">${index + 2}) ${member.name || 'N/A'}</div>
+                    ${member.voterNameEng ? `<div class="detail-item"><span class="detail-label">English Name</span><span class="detail-value">${member.voterNameEng}</span></div>` : ''}
+                    <div class="member-details">
+                      <div class="detail-item">
+                        <span class="detail-label">Voter ID</span>
+                        <span class="detail-value">${member.voterId || member.id || 'N/A'}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Serial Number</span>
+                        <span class="detail-value">${member.serialNumber || 'N/A'}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Booth Number</span>
+                        <span class="detail-value">${member.boothNumber || 'N/A'}</span>
+                      </div>
+                      <div class="detail-item">
+                        <span class="detail-label">Age & Gender</span>
+                        <span class="detail-value">${member.age || 'N/A'} | ${member.gender || 'N/A'}</span>
+                      </div>
+                      ${member.houseNumber ? `<div class="detail-item"><span class="detail-label">House Number</span><span class="detail-value">${member.houseNumber}</span></div>` : ''}
+                      ${member.address ? `<div class="detail-item"><span class="detail-label">Address</span><span class="detail-value">${member.address}</span></div>` : ''}
+                      <div class="polling-station">
+                        <span class="detail-label">Polling Station Address</span>
+                        <span class="detail-value">${member.pollingStationAddress || 'N/A'}</span>
+                      </div>
                     </div>
                   </div>
+                `).join('')}
+              ` : `
+                <div class="no-family">
+                  <h3>No Additional Family Members</h3>
+                  <p>Only the primary voter is registered. Add family members through the family management interface.</p>
                 </div>
-              `).join('')}
+              `}
             </div>
 
             <div class="footer">
@@ -875,8 +967,7 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
             <div className="flex ">
               {member.serialNumber && <span className="mr-1">{member.serialNumber}] </span>}
               <h4 className="font-semibold text-gray-900">{member.name}</h4>
-              <h4 className="font-semibold text-gray-900">{member.voterNameEng}</h4>
-
+              {member.voterNameEng && <h4 className="font-semibold text-gray-900 ml-2">({member.voterNameEng})</h4>}
             </div>
             <div className="flex w-full justify-between text-sm text-gray-700 mt-1">
               <span>{member.voterId}</span>
@@ -908,6 +999,14 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
 
   return (
     <div className="space-y-6">
+      {/* Loading State */}
+      {isLoading && (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+          <p className="mt-2 text-gray-600">Loading voter data...</p>
+        </div>
+      )}
+
       {/* Pending Sync Banner */}
       {pendingSyncItems.length > 0 && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex justify-between items-center">
@@ -942,11 +1041,12 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap justify-center">
-            {familyMembers.length > 0 && (
+            {/* FIXED: Allow printing and WhatsApp sharing even with 0 family members */}
+            {voterData && !isLoading && (
               <>
                 <button
                   onClick={printFamilyViaBluetooth}
-                  disabled={printing}
+                  disabled={printing || isLoading}
                   title={printing ? 'Printing...' : 'Print Family'}
                   className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl transition-all duration-300 disabled:opacity-50 shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
@@ -955,8 +1055,9 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
                 </button>
                 <button
                   onClick={handleWhatsAppShare}
+                  disabled={isLoading}
                   title="Share via WhatsApp"
-                  className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50"
                 >
                   <FaWhatsapp className="text-lg" />
                   <span className="font-semibold"><TranslatedText>Share via WhatsApp</TranslatedText></span>
@@ -965,7 +1066,8 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
             )}
             <button
               onClick={() => setShowFamilyModal(true)}
-              className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-4 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              disabled={isLoading}
+              className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-4 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50"
             >
               <FiPlus className="text-lg" />
               <span className="font-semibold"><TranslatedText>Add Family</TranslatedText></span>
@@ -975,19 +1077,21 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
       </div>
 
       {/* Family Members List */}
-      <div className="bg-white rounded-xl mt-5">
-        <div className="flex flex-col items-center justify-between mb-4">
-          <h3 className="text-xl font-semibold text-gray-900">
-            <TranslatedText>Family Members</TranslatedText> ({familyMembers.length})
-          </h3>
-          {familyMembers.length > 0 && (
-            <div className="text-sm text-gray-500">
-              <TranslatedText>Total {familyMembers.length + 1} family members including primary voter</TranslatedText>
-            </div>
-          )}
+      {!isLoading && (
+        <div className="bg-white rounded-xl mt-5">
+          <div className="flex flex-col items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-gray-900">
+              <TranslatedText>Family Members</TranslatedText> ({familyMembers.length})
+            </h3>
+            {familyMembers.length > 0 && (
+              <div className="text-sm text-gray-500">
+                <TranslatedText>Total {familyMembers.length + 1} family members including primary voter</TranslatedText>
+              </div>
+            )}
+          </div>
+          <EnhancedVoterList voters={familyMembers} onRemove={removeFamilyMember} />
         </div>
-        <EnhancedVoterList voters={familyMembers} onRemove={removeFamilyMember} />
-      </div>
+      )}
 
       {/* Bluetooth Printer Component */}
       <div className='hidden'>
@@ -1004,6 +1108,9 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
           <div className="bg-white rounded-2xl w-full max-w-4xl max-h-full overflow-hidden flex flex-col shadow-2xl">
             <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-orange-50 to-red-50">
               <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  <TranslatedText>Add Family Members</TranslatedText>
+                </h3>
                 <p className="text-gray-800 mt-1">
                   {currentVoterSurname && (
                     <span className=" text-orange-600 font-medium">
@@ -1043,10 +1150,6 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
                   </button>
                 )}
               </div>
-              {/* <div className="text-xs text-gray-500 mt-2 flex items-center gap-2">
-                <span>🔍</span>
-                <TranslatedText>Search will look in Marathi and English names, voter IDs, English transliterations and surname fields.</TranslatedText>
-              </div> */}
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3 bg-gray-50">
@@ -1072,7 +1175,7 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
 
                             <div className="flex flex-col">
                               <h4 className="font-bold text-gray-900 text-md">{v.name}</h4>
-                              <h4 className="font-bold text-gray-900 text-sm">{v.voterNameEng}</h4>
+                              {v.voterNameEng && <h4 className="font-bold text-gray-900 text-sm">({v.voterNameEng})</h4>}
                             </div>
                             <div className="text-sm text-gray-600 flex flex-wrap gap-3">
                               <span>{v.voterId}</span>
@@ -1104,10 +1207,6 @@ const FamilyManagement = ({ voter, onUpdate, candidateInfo }) => {
             </div>
 
             <div className="p-4 border-t border-gray-200 flex justify-center items-center text-sm text-gray-600 bg-white">
-              {/* <span className="font-medium">
-                Showing {paginatedVoters.length} of {filteredVoters.length} voters
-                {modalQuery && ` for "${modalQuery}"`}
-              </span> */}
               <div className="flex  gap-4">
                 <div className="flex items-center justify-center gap-2">
                   <button
