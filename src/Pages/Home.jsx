@@ -21,7 +21,7 @@ const BannerSlider = ({ images }) => {
 
   return (
     <div className="w-full max-w-5xl mx-auto mt-5 mb-4 px-4">
-      <div className="relative h-50  rounded-md overflow-hidden shadow-sm bg-gray-800/10">
+      <div className="relative h-65 rounded-md overflow-hidden shadow-sm bg-gray-800/10">
         {bannerImages.map((src, i) => (
           <img
             key={i}
