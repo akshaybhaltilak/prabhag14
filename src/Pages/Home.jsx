@@ -21,13 +21,13 @@ const BannerSlider = ({ images }) => {
 
   return (
     <div className="w-full max-w-5xl mx-auto mt-5 mb-4 px-4">
-      <div className="relative h-65 rounded-md overflow-hidden shadow-sm bg-gray-800/10">
+      <div className="relative h-65 rounded-md overflow-hidden bg-transparent">
         {bannerImages.map((src, i) => (
           <img
             key={i}
             src={src}
             alt={`banner-${i + 1}`}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${i === index ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute inset-0 object-cover transition-opacity duration-700 ${i === index ? 'opacity-100' : 'opacity-0'}`}
             draggable={false}
           />
         ))}
