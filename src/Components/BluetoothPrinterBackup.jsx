@@ -32,7 +32,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
 
   const { candidateInfo } = useCandidate();
 
-  const WEBSITE_URL = "https://jannetaa.vercel.app/preview/Prabhag14BJP";
+  const WEBSITE_URL = "https://jannetaa.vercel.app/preview/Prabhag18BJP";
   const RECEIPT_IMAGE_URL = "https://www.shutterstock.com/image-vector/rajkot-gujarat-india-10-disember-600nw-2400847277.jpg";
 
   // Check if mobile device
@@ -89,13 +89,13 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
         if (validPhoneNumber) {
           const cleanedNumber = validPhoneNumber.replace(/\D/g, '');
           let finalNumber = cleanedNumber;
-
+          
           if (cleanedNumber.startsWith('91') && cleanedNumber.length === 12) {
             finalNumber = cleanedNumber.substring(2);
           } else if (cleanedNumber.startsWith('+91') && cleanedNumber.length === 13) {
             finalNumber = cleanedNumber.substring(3);
           }
-
+          
           if (finalNumber.length === 10) {
             setWhatsappNumber(finalNumber);
           } else {
@@ -107,7 +107,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
       }
     } catch (error) {
       console.error('Error accessing contacts:', error);
-
+      
       if (error.name === 'AbortError') {
         console.log('User canceled contact selection.');
       } else if (error.name === 'NotAllowedError') {
@@ -199,17 +199,17 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
 
   const getWhatsappNumber = () => {
     if (!voterData) return '';
-
+    
     if (voterData.whatsapp) {
       const num = String(voterData.whatsapp).replace(/\D/g, '');
       if (num.length === 10) return num;
     }
-
+    
     if (voter?.whatsapp) {
       const num = String(voter.whatsapp).replace(/\D/g, '');
       if (num.length === 10) return num;
     }
-
+    
     return '';
   };
 
@@ -265,7 +265,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
       message += `*मतदान केंद्र:* ${safeString(voterData.pollingStationAddress || 'N/A')}\n\n`;
     }
 
-    message += `${safeString(candidateInfo.messageWhatsapp)}`
+    message += `भारतीय जनता पार्टी प्रभाग क्रमांक ४ चे अधिकृत उमेदवार<br>(अ) सौ दिपाली प्रवीण जगताप<br>ब) सौ अस्मिता प्रकाश वगारे<br>क) गोपाल रघुनाथ मुळे<br>(ड) दिलीप तुळशीराम भरणे   <br>यांना <b>कमळ</b> या निशाणी समोरील बटन दाबून प्रचंड बहुमतांनी विजयी करा`
     message += `\n${WEBSITE_URL}`;
 
     return message;
@@ -278,7 +278,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
     setActionType('whatsapp');
 
     const whatsappNum = getWhatsappNumber();
-
+    
     if (whatsappNum) {
       const message = generateWhatsAppMessage(isFamilyShare);
       const url = `https://wa.me/91${whatsappNum}?text=${encodeURIComponent(message)}`;
@@ -295,7 +295,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
     setActionType('call');
 
     const whatsappNum = getWhatsappNumber();
-
+    
     if (whatsappNum) {
       window.open(`tel:${whatsappNum}`, '_blank');
     } else {
@@ -373,7 +373,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {isCall ? 'कॉल करण्यासाठी क्रमांक' : 'व्हॉट्सअॅप क्रमांक'}
               </label>
-
+              
               <div className="flex items-center gap-2">
                 <input
                   type="tel"
@@ -389,7 +389,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
                   maxLength="10"
                   autoFocus
                 />
-
+                
                 {('contacts' in navigator && 'ContactsManager' in window) && (
                   <button
                     type="button"
@@ -409,11 +409,11 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
                   </button>
                 )}
               </div>
-
+              
               <p className="text-xs text-gray-500 mt-2">
                 हा क्रमांक <strong>voter_surveys</strong> मध्ये जतन केला जाईल
               </p>
-
+              
               {!('contacts' in navigator && 'ContactsManager' in window) && (
                 <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
                   <strong>नोंद:</strong> संपर्क आयात Chrome/Edge ब्राउझरमध्ये HTTPS कनेक्शनवर उपलब्ध आहे.
@@ -456,9 +456,9 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
 
     try {
       setPrinting(true);
-
+      
       // Mobile-specific timeout
-      const timeoutPromise = new Promise((_, reject) =>
+      const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('Bluetooth connection timeout')), 30000)
       );
 
@@ -483,7 +483,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
 
         console.log('Connecting to GATT server...');
         const server = await device.gatt.connect();
-
+        
         // Try common services for mobile printers
         const servicesToTry = [
           '0000ffe0-0000-1000-8000-00805f9b34fb',
@@ -495,18 +495,18 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
           try {
             const service = await server.getPrimaryService(serviceUuid);
             const characteristics = await service.getCharacteristics();
-
+            
             for (const c of characteristics) {
               if (c.properties && (c.properties.write || c.properties.writeWithoutResponse)) {
                 globalBluetoothConnection.device = device;
                 globalBluetoothConnection.characteristic = c;
                 globalBluetoothConnection.connected = true;
-
+                
                 setPrinterDevice(device);
                 setPrinterCharacteristic(c);
                 setBluetoothConnected(true);
                 setPrinting(false);
-
+                
                 console.log('Bluetooth printer connected successfully on service:', serviceUuid);
                 return { device, characteristic: c };
               }
@@ -519,7 +519,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
         // Fallback: Get all services
         const services = await server.getPrimaryServices();
         let foundChar = null;
-
+        
         for (const service of services) {
           try {
             const characteristics = await service.getCharacteristics();
@@ -559,7 +559,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
       console.error('Bluetooth connection failed:', error);
       setPrinting(false);
       setBluetoothConnected(false);
-
+      
       if (error?.name === 'NotFoundError') {
         alert('No Bluetooth printer found. Make sure:\n1. Printer is ON\n2. Bluetooth is enabled\n3. Printer is in pairing mode\n4. You are close to the printer');
       } else if (error?.name === 'SecurityError') {
@@ -596,13 +596,13 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
           const r = data[index];
           const g = data[index + 1];
           const b = data[index + 2];
-
+          
           // Calculate grayscale (mobile optimized)
           const gray = (r + g + b) / 3;
-
+          
           // Convert to black and white with threshold optimized for thermal printing
           const isBlack = gray < 140; // Lower threshold for mobile
-
+          
           if (isBlack) {
             const byteIndex = Math.floor(x / 8) + y * widthBytes;
             const bitIndex = 7 - (x % 8);
@@ -625,7 +625,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
       command[5] = xH;   // xH
       command[6] = yL;   // yL
       command[7] = yH;   // yH
-
+      
       command.set(rasterData, 8);
 
       return command;
@@ -646,11 +646,11 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
 
   const translateToMarathi = async (text) => {
     if (!text) return '';
-
+    
     if (/[0-9]/.test(text)) {
       return text;
     }
-
+    
     const cacheKey = `mr_${text}`;
     if (translationCache.has(cacheKey)) {
       return translationCache.get(cacheKey);
@@ -667,7 +667,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
       );
       const data = await res.json();
       const translated = data?.[0]?.[0]?.[0] || text;
-
+      
       translationCache.set(cacheKey, translated);
       return translated;
     } catch (e) {
@@ -722,16 +722,16 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
 
       const translatedFamily = isFamily && familyMembers.length > 0
         ? await Promise.all(
-          familyMembers.map(async (member) => ({
-            ...member,
-            name: await translateToMarathi(safeString(member.name || '')),
-            voterId: member.voterId || '',
-            boothNumber: member.boothNumber ?? '',
-            pollingStationAddress: member.pollingStationAddress || '',
-            gender: await translateToMarathi(safeString(member.gender || '')),
-            age: member.age ?? '',
-          }))
-        )
+            familyMembers.map(async (member) => ({
+              ...member,
+              name: await translateToMarathi(safeString(member.name || '')),
+              voterId: member.voterId || '',
+              boothNumber: member.boothNumber ?? '',
+              pollingStationAddress: member.pollingStationAddress || '',
+              gender: await translateToMarathi(safeString(member.gender || '')),
+              age: member.age ?? '',
+            }))
+          )
         : [];
 
       // Mobile: Try both image and text printing
@@ -750,7 +750,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
       } catch (imageError) {
         console.warn('Image printing failed, trying text-based...', imageError);
         errorMessage = imageError.message;
-
+        
         try {
           await printViaText(
             connection.characteristic,
@@ -791,9 +791,9 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
 
   const escapeHtml = (str) => {
     if (str === null || str === undefined) return '';
-
+    
     const s = String(str);
-
+    
     if (/[0-9]/.test(s)) {
       return s
         .replace(/&/g, '&amp;')
@@ -802,7 +802,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
     }
-
+    
     return s
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -814,25 +814,24 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
   // 🔸 MOBILE OPTIMIZED: printReceiptAsImage
   const printReceiptAsImage = async (characteristic, isFamily, voterData, familyData) => {
     return new Promise(async (resolve, reject) => {
-      let safeDiv = null;
-
       try {
         ensureDevanagariFont();
-
-        // Wait for fonts to load
+        
+        // Wait for fonts to load (important for mobile)
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        safeDiv = document.createElement('div');
+        const safeDiv = document.createElement('div');
         safeDiv.id = 'voter-receipt-printable-temp-mobile';
-
-        const PRINT_WIDTH = 240; // Fixed width for 2-inch printer
-
+        
+        // Mobile optimized width
+        const PRINT_WIDTH = isMobileDevice() ? 200 : 200;
+        
         safeDiv.style.width = `${PRINT_WIDTH}px`;
-        safeDiv.style.padding = '4px';
+        safeDiv.style.padding = '10px';
         safeDiv.style.background = '#ffffff';
         safeDiv.style.color = '#000000';
         safeDiv.style.fontFamily = `"Noto Sans Devanagari", "Roboto", sans-serif`;
-        safeDiv.style.fontSize = '18px';
+        safeDiv.style.fontSize = '14px';
         safeDiv.style.lineHeight = '1.3';
         safeDiv.style.position = 'fixed';
         safeDiv.style.left = '-9999px';
@@ -840,105 +839,106 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
         safeDiv.style.visibility = 'hidden';
         safeDiv.style.zIndex = '-9999';
         safeDiv.style.boxSizing = 'border-box';
-
+        
+        // Mobile font optimization
         safeDiv.style.webkitFontSmoothing = 'antialiased';
         safeDiv.style.mozOsxFontSmoothing = 'grayscale';
 
         const pollingStation = escapeHtml(voterData.pollingStationAddress || '');
-
+        
         let html = `
-         <img src="${escapeHtml(RECEIPT_IMAGE_URL)}" alt="logo" style="width:100px;height:100px;object-fit:cover;margin:0 auto 6px;display:block;" />
-        <div style="text-align:center;font-weight:bold;border-bottom:1px solid #000;padding-bottom:8px;margin-bottom:8px;">
-          ${escapeHtml(candidateInfo.party)}<br/>
-          <div style="font-size:18px;margin:4px 0;">${escapeHtml(candidateInfo.name)}</div>
-          <div style="font-size:14px;">${escapeHtml(candidateInfo.slogan)}</div>
-          <div style="font-size:14px;margin-top:4px;padding-bottom:8px;">${escapeHtml(candidateInfo.area)}</div>
-        </div>
-      `;
+          <div style="text-align:center;font-weight:bold;border-bottom:1px solid #000;padding-bottom:8px;margin-bottom:8px;">
+            <img src="${RECEIPT_IMAGE_URL}" style="max-width:100%;height:auto;margin-bottom:8px;" alt="Logo" />
+            ${escapeHtml(candidateInfo.party)}<br/>
+            <div style="font-size:18px;margin:4px 0;">${escapeHtml(candidateInfo.name)}</div>
+            <div style="font-size:14px;">${escapeHtml(candidateInfo.slogan)}</div>
+            <div style="font-size:14px;margin-top:4px;padding-bottom:8px;">${escapeHtml(candidateInfo.area)}</div>
+          </div>
+        `;
 
         if (isFamily && Array.isArray(familyData) && familyData.length > 0) {
           html += `
-          <div style="text-align:center;margin-top:6px;font-size:14px;font-weight:bold;">कुटुंब तपशील</div>
-          
-          <!-- Main Voter Data -->
-          <div style="margin-top:6px;font-size:18px;margin-bottom:2px;border-bottom:1px solid #000;padding-bottom:10px;">
-            <div style="font-weight:bold;">1) ${escapeHtml(voterData.name || '')}</div>
-            <div style="margin-top:4px;">अनुक्रमांक: ${escapeHtml(voterData.serialNumber || '')}</div>
-            <div style="margin-top:2px;">मतदार आयडी: ${escapeHtml(voterData.voterId || '')}</div>
-            <div style="margin-top:2px;">बूथ क्रमांक: ${escapeHtml(voterData.boothNumber || '')}</div>
-            <div style="margin-top:2px;">लिंग: ${escapeHtml(voterData.gender || '')}</div>
-            <div style="margin-top:2px;">वय: ${escapeHtml(voterData.age || '')}</div>
-            <div style="margin-top:4px;font-size:18px;word-wrap:break-word;">
-              मतदान केंद्र: ${pollingStation}
+            <div style="text-align:center;margin-top:6px;font-size:14px;font-weight:bold;">कुटुंब तपशील</div>
+            
+            <!-- Main Voter Data -->
+            <div style="margin-top:6px;font-size:14px;margin-bottom:2px;border-bottom:1px solid #000;padding-bottom:10px;">
+              <div style="font-weight:bold;">1) ${escapeHtml(voterData.name || '')}</div>
+              <div style="margin-top:4px;">अनुक्रमांक: ${escapeHtml(voterData.serialNumber || '')}</div>
+              <div style="margin-top:2px;">मतदार आयडी: ${escapeHtml(voterData.voterId || '')}</div>
+              <div style="margin-top:2px;">बूथ क्रमांक: ${escapeHtml(voterData.boothNumber || '')}</div>
+              <div style="margin-top:2px;">लिंग: ${escapeHtml(voterData.gender || '')}</div>
+              <div style="margin-top:2px;">वय: ${escapeHtml(voterData.age || '')}</div>
+              <div style="margin-top:4px;font-size:13px;word-wrap:break-word;">
+                मतदान केंद्र: ${pollingStation}
+              </div>
             </div>
-          </div>
-        `;
+          `;
 
           // Family Members
           familyData.forEach((m, i) => {
             const memberPollingStation = escapeHtml(m.pollingStationAddress || '');
             html += `
-            <div style="margin-top:6px;font-size:18px;margin-bottom:2px;border-bottom:1px solid #000;padding-bottom:10px;">
-              <div style="font-weight:bold;">${i + 2}) ${escapeHtml(m.name || '')}</div>
-              <div style="margin-top:4px;">अनुक्रमांक: ${escapeHtml(m.serialNumber || '')}</div>
-              <div style="margin-top:2px;">मतदार आयडी: ${escapeHtml(m.voterId || '')}</div>
-              <div style="margin-top:2px;">बूथ क्रमांक: ${escapeHtml(m.boothNumber || '')}</div>
-              <div style="margin-top:2px;">लिंग: ${escapeHtml(m.gender || '')}</div>
-              <div style="margin-top:2px;">वय: ${escapeHtml(m.age || '')}</div>
-              <div style="margin-top:4px;font-size:18px;word-wrap:break-word;">
-                मतदान केंद्र: ${memberPollingStation}
+              <div style="margin-top:6px;font-size:14px;margin-bottom:2px;border-bottom:1px solid #000;padding-bottom:10px;">
+                <div style="font-weight:bold;">${i + 2}) ${escapeHtml(m.name || '')}</div>
+                <div style="margin-top:4px;">अनुक्रमांक: ${escapeHtml(m.serialNumber || '')}</div>
+                <div style="margin-top:2px;">मतदार आयडी: ${escapeHtml(m.voterId || '')}</div>
+                <div style="margin-top:2px;">बूथ क्रमांक: ${escapeHtml(m.boothNumber || '')}</div>
+                <div style="margin-top:2px;">लिंग: ${escapeHtml(m.gender || '')}</div>
+                <div style="margin-top:2px;">वय: ${escapeHtml(m.age || '')}</div>
+                <div style="margin-top:4px;font-size:13px;word-wrap:break-word;">
+                  मतदान केंद्र: ${memberPollingStation}
+                </div>
               </div>
-            </div>
-          `;
+            `;
           });
 
           html += `
-          <div style="margin-top:10px;border-top:1px solid #000;padding-top:8px;font-size:18px;line-height:1.3;">
-           ${candidateInfo.messagePrinting || ''}
-          </div>
-          <div style="margin-top:10px;text-align:center;font-weight:bold;">${escapeHtml(candidateInfo.name || '')}</div>
-          <div style="margin-top:20px;text-align:center;"></div>
-        `;
+            <div style="margin-top:6px;border-top:1px solid #000;padding-top:6px;font-size:13px;">
+             ${candidateInfo.messagePrinting} <div>Shri</div>
+            </div>
+            <div style="margin-top:6px;text-align:center;font-weight:bold;">${escapeHtml(candidateInfo.name)}</div>
+            <div style="margin-top:18px;text-align:center;"></div>
+          `;
         } else {
           html += `
-          <div style="text-align:center;margin-top:6px;font-weight:bold;">मतदार तपशील</div>
-          <div style="margin-top:6px;"><b>नाव:</b> ${escapeHtml(voterData.name || '')}</div>
-          <div style="margin-top:4px;"><b>मतदार आयडी:</b> ${escapeHtml(voterData.voterId || '')}</div>
-          <div style="margin-top:4px;"><b>अनुक्रमांक:</b> ${escapeHtml(voterData.serialNumber || '')}</div>
-          <div style="margin-top:4px;"><b>बूथ क्रमांक:</b> ${escapeHtml(voterData.boothNumber || '')}</div>
-          <div style="margin-top:4px;"><b>लिंग:</b> ${escapeHtml(voterData.gender || '')}</div>
-          <div style="margin-top:4px;"><b>वय:</b> ${escapeHtml(voterData.age || '')}</div>
-          <div style="margin-top:6px;margin-bottom:10px;word-wrap:break-word;">
-            <b>मतदान केंद्र:</b> ${pollingStation}
-          </div>
-         <div style="margin-top:10px;border-top:1px solid #000;padding-top:8px;font-size:18px;line-height:1.3;">
-           ${candidateInfo.messagePrinting || ''}
-          </div>
-          <div style="margin-top:10px;text-align:center;font-weight:bold;">${escapeHtml(candidateInfo.name || '')}</div>
-          <div style="margin-top:5px;"></div>
-        `;
+            <div style="text-align:center;margin-top:6px;font-weight:bold;">मतदार तपशील</div>
+            <div style="margin-top:6px;"><b>नाव:</b> ${escapeHtml(voterData.name || '')}</div>
+            <div style="margin-top:4px;"><b>मतदार आयडी:</b> ${escapeHtml(voterData.voterId || '')}</div>
+            <div style="margin-top:4px;"><b>अनुक्रमांक:</b> ${escapeHtml(voterData.serialNumber || '')}</div>
+            <div style="margin-top:4px;"><b>बूथ क्रमांक:</b> ${escapeHtml(voterData.boothNumber || '')}</div>
+            <div style="margin-top:4px;"><b>लिंग:</b> ${escapeHtml(voterData.gender || '')}</div>
+            <div style="margin-top:4px;"><b>वय:</b> ${escapeHtml(voterData.age || '')}</div>
+            <div style="margin-top:6px;margin-bottom:10px;word-wrap:break-word;">
+              <b>मतदान केंद्र:</b> ${pollingStation}
+            </div>
+           <div style="margin-top:6px;border-top:1px solid #000;padding-top:6px;font-size:13px;">
+             ${candidateInfo.messagePrinting}
+            </div>
+            <div style="margin-top:6px;text-align:center;font-weight:bold;">${escapeHtml(candidateInfo.name)}</div>
+            <div style="margin-top:18px;"></div>
+          `;
         }
 
         safeDiv.innerHTML = html;
         document.body.appendChild(safeDiv);
         safeDiv.style.visibility = 'visible';
 
-        // Force reflow
+        // Force reflow for mobile
         safeDiv.offsetHeight;
 
         try {
-          // Optimized html2canvas settings for thermal printer
+          // Mobile-optimized html2canvas settings
           const canvas = await html2canvas(safeDiv, {
-            scale: 1.5,
+            scale: isMobileDevice() ? 1.5 : 1.5,
             backgroundColor: '#ffffff',
             useCORS: true,
             allowTaint: false,
             width: PRINT_WIDTH,
             height: safeDiv.scrollHeight,
             logging: false,
-            imageTimeout: 15000,
+            imageTimeout: 10000,
             removeContainer: false,
-            foreignObjectRendering: false,
+            foreignObjectRendering: false, // Disable for mobile compatibility
             onclone: (clonedDoc) => {
               const clonedDiv = clonedDoc.getElementById('voter-receipt-printable-temp-mobile');
               if (clonedDiv) {
@@ -953,118 +953,67 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
 
           // Convert to ESC/POS raster
           const escImage = canvasToEscPosRaster(canvas);
+          
+          // Mobile-optimized printer commands
+          const commands = [];
+          
+          // Initialize printer
+          commands.push(new Uint8Array([0x1B, 0x40]));
+          
+          // Center align
+          commands.push(new Uint8Array([0x1B, 0x61, 0x01]));
+          
+          // Print raster image
+          commands.push(escImage);
+          
+          // Feed and cut
+          commands.push(new Uint8Array([0x0A, 0x0A, 0x0A]));
+          commands.push(new Uint8Array([0x1D, 0x56, 0x00])); // Cut paper
 
-          // Create complete command sequence
-          const init = new Uint8Array([0x1B, 0x40]); // Initialize printer
-          const alignCenter = new Uint8Array([0x1B, 0x61, 0x01]); // Center alignment
-
-          // Final feed and cut commands (MORE PAPER FEED TO ENSURE COMPLETION)
-          const feedAndCut = new Uint8Array([
-            0x0A, 0x0A, 0x0A, 0x0A, // Feed 4 lines
-            0x1D, 0x56, 0x42, 0x00  // Full cut (0x42 for full cut, 0x00 for feed distance)
-          ]);
-
-          // Combine all commands
-          const completeCommand = new Uint8Array(
-            init.length +
-            alignCenter.length +
-            escImage.length +
-            feedAndCut.length
-          );
-
-          let offset = 0;
-          completeCommand.set(init, offset);
-          offset += init.length;
-
-          completeCommand.set(alignCenter, offset);
-          offset += alignCenter.length;
-
-          completeCommand.set(escImage, offset);
-          offset += escImage.length;
-
-          completeCommand.set(feedAndCut, offset);
-
-          // Send complete command in optimized chunks
-          const CHUNK_SIZE = 180; // Optimal for Bluetooth LE
-          let chunksSent = 0;
-
-          for (let i = 0; i < completeCommand.length; i += CHUNK_SIZE) {
-            const chunk = completeCommand.slice(i, Math.min(i + CHUNK_SIZE, completeCommand.length));
-
-            try {
-              if (characteristic.properties.writeWithoutResponse) {
-                await characteristic.writeValueWithoutResponse(chunk);
-              } else {
-                await characteristic.writeValue(chunk);
-              }
-              chunksSent++;
-
-              // Small delay between chunks but not too much
-              if (i + CHUNK_SIZE < completeCommand.length) {
-                await new Promise(r => setTimeout(r, 20));
-              }
-            } catch (chunkError) {
-              console.warn('Chunk send error, retrying with smaller size:', chunkError);
-
-              // Retry with smaller chunks
-              const SMALL_CHUNK = 60;
-              for (let j = 0; j < chunk.length; j += SMALL_CHUNK) {
-                const smallChunk = chunk.slice(j, Math.min(j + SMALL_CHUNK, chunk.length));
-                try {
+          // Send commands with mobile-optimized chunk size
+          const CHUNK_SIZE = isMobileDevice() ? 180 : 512;
+          for (const cmd of commands) {
+            for (let i = 0; i < cmd.length; i += CHUNK_SIZE) {
+              const chunk = cmd.slice(i, i + CHUNK_SIZE);
+              try {
+                if (characteristic.properties.writeWithoutResponse) {
+                  await characteristic.writeValueWithoutResponse(chunk);
+                } else {
+                  await characteristic.writeValue(chunk);
+                }
+                // Longer delay for mobile stability
+                if (i + CHUNK_SIZE < cmd.length) {
+                  await new Promise(r => setTimeout(r, isMobileDevice() ? 50 : 20));
+                }
+              } catch (chunkError) {
+                console.warn('Chunk error:', chunkError);
+                // Retry with smaller chunk
+                for (let j = 0; j < chunk.length; j += 100) {
+                  const smallChunk = chunk.slice(j, j + 100);
                   if (characteristic.properties.writeWithoutResponse) {
                     await characteristic.writeValueWithoutResponse(smallChunk);
                   } else {
                     await characteristic.writeValue(smallChunk);
                   }
-                  await new Promise(r => setTimeout(r, 10));
-                } catch (smallError) {
-                  console.error('Failed to send even small chunk:', smallError);
-                  throw new Error('Printer communication failed');
+                  await new Promise(r => setTimeout(r, 30));
                 }
               }
             }
           }
-
-          console.log(`Successfully sent ${chunksSent} chunks`);
-
-          // FINAL VERIFICATION - Send additional feed to ensure print completes
-          try {
-            await new Promise(r => setTimeout(r, 100)); // Wait for printer to process
-
-            // Send final feed command
-            const finalFeed = new Uint8Array([0x0A, 0x0A]);
-            if (characteristic.properties.writeWithoutResponse) {
-              await characteristic.writeValueWithoutResponse(finalFeed);
-            } else {
-              await characteristic.writeValue(finalFeed);
-            }
-
-            await new Promise(r => setTimeout(r, 200)); // Wait for final processing
-
-          } catch (finalError) {
-            console.log('Final feed not sent, but printing likely completed');
-          }
-
+          
           resolve();
-
         } catch (canvasError) {
-          console.error('Canvas creation error:', canvasError);
           reject(canvasError);
+        } finally {
+          // Clean up
+          setTimeout(() => {
+            if (document.body.contains(safeDiv)) {
+              document.body.removeChild(safeDiv);
+            }
+          }, 1000);
         }
-
       } catch (error) {
-        console.error('Print error:', error);
         reject(error);
-
-      } finally {
-        // Clean up DOM element
-        if (safeDiv && document.body.contains(safeDiv)) {
-          try {
-            document.body.removeChild(safeDiv);
-          } catch (e) {
-            console.log('Cleanup error:', e);
-          }
-        }
       }
     });
   };
@@ -1074,29 +1023,29 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
     try {
       const encoder = new TextEncoder();
       const commands = [];
-
+      
       // Initialize printer
       commands.push(new Uint8Array([0x1B, 0x40]));
-
+      
       // Center align
       commands.push(new Uint8Array([0x1B, 0x61, 0x01]));
-
+      
       // Double height and width for title
       commands.push(new Uint8Array([0x1D, 0x21, 0x11]));
-
+      
       // Title
       commands.push(encoder.encode(`${candidateInfo.party}\n`));
       commands.push(encoder.encode(`${candidateInfo.name}\n\n`));
-
+      
       // Reset text size
       commands.push(new Uint8Array([0x1D, 0x21, 0x00]));
-
+      
       // Left align for details
       commands.push(new Uint8Array([0x1B, 0x61, 0x00]));
-
+      
       if (isFamily && Array.isArray(familyData) && familyData.length > 0) {
         commands.push(encoder.encode('कुटुंब तपशील\n\n'));
-
+        
         // Main voter
         commands.push(encoder.encode(`1) ${voterData.name}\n`));
         commands.push(encoder.encode(`अनुक्रमांक: ${voterData.serialNumber}\n`));
@@ -1105,7 +1054,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
         commands.push(encoder.encode(`लिंग: ${voterData.gender}\n`));
         commands.push(encoder.encode(`वय: ${voterData.age}\n`));
         commands.push(encoder.encode(`मतदान केंद्र: ${voterData.pollingStationAddress}\n\n`));
-
+        
         // Family members
         familyData.forEach((member, index) => {
           commands.push(encoder.encode(`${index + 2}) ${member.name}\n`));
@@ -1126,18 +1075,18 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
         commands.push(encoder.encode(`वय: ${voterData.age}\n`));
         commands.push(encoder.encode(`मतदान केंद्र: ${voterData.pollingStationAddress}\n\n`));
       }
-
+      
       // Message
       commands.push(encoder.encode(`${candidateInfo.messagePrinting || ''}\n\n`));
-
+      
       // Center align for signature
       commands.push(new Uint8Array([0x1B, 0x61, 0x01]));
       commands.push(encoder.encode(`${candidateInfo.name}\n`));
-
+      
       // Feed and cut
       commands.push(new Uint8Array([0x0A, 0x0A, 0x0A]));
       commands.push(new Uint8Array([0x1D, 0x56, 0x00]));
-
+      
       // Send all commands with mobile-optimized delays
       for (const cmd of commands) {
         if (characteristic.properties.writeWithoutResponse) {
@@ -1148,7 +1097,7 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
         // Longer delay for mobile
         await new Promise(resolve => setTimeout(resolve, isMobileDevice() ? 100 : 50));
       }
-
+      
       return true;
     } catch (error) {
       console.error('Text printing failed:', error);
