@@ -18,24 +18,39 @@ export const CandidateProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // Default candidate information
+  // const defaultCandidateInfo = {
+  //   mainFrontImage: '',
+  //   mainWhatsappBrandingImage: '',
+  //   logoImageCircle: "/logobjp.jpg",
+  //   TagLine: "अकोला महानगरपालिका सार्वत्रिक निवडणूक २०२६",
+  //   ReSellerName: "Powered By JanNetaa",
+  //   name: 'अकोला प्रभाग क्रमांक 14',
+  //   namecan: '',
+  //   party: "भारतीय जनता पार्टी",
+  //   electionSymbol: "कमळ",
+  //   slogan: 'सबका साथ, सबका विकास',
+  //   contact: "",
+  //   area: "अकोला महानगरपालिका सार्वत्रिक निवडणूक २०२६",
+  //   messageWhatsapp: "भारतीय जनता पक्षाचे अधिकृत उमेदवार  यांना भारतीय जनता पक्षाच्या(कमळ) चिन्हावर  मतदान करून प्रचंड बहुमतांनी विजयी करा.\n*आपले उमेदवार:*\n(अ) सौ दिपाली प्रवीण जगताप\n(ब) सौ अस्मिता प्रकाश वगारे\n(क) गोपाल रघुनाथ मुळे\n(ड)  दिलीप तुळशीराम भरणे\n",
+
+  //   messagePrinting: "भारतीय जनता पार्टी प्रभाग क्रमांक 14 चे अधिकृत उमेदवार<br>(अ) सौ दिपाली प्रवीण जगताप<br>ब) सौ अस्मिता प्रकाश वगारे<br>क) गोपाल रघुनाथ मुळे<br>(ड) दिलीप तुळशीराम भरणे   <br>यांना <b>कमळ</b> या निशाणी समोरील बटन दाबून प्रचंड बहुमतांनी विजयी करा"
+  // };
+
   const defaultCandidateInfo = {
     mainFrontImage: '',
     mainWhatsappBrandingImage: '',
-    logoImageCircle: "/logobjp.jpg",
-    TagLine: "अकोला महानगरपालिका सार्वत्रिक निवडणूक २०२६",
+    logoImageCircle: "/logo.jpg",
+    TagLine: "अकोला महापालिका निवडणूक 2026",
     ReSellerName: "Powered By JanNetaa",
-    name: 'अकोला प्रभाग क्रमांक 14',
-    namecan: '',
-    party: "भारतीय जनता पार्टी",
-    electionSymbol: "कमळ",
-    slogan: 'सबका साथ, सबका विकास',
+    name: 'Akola Election 2026 Guidelines',
+    party: "Akola Election 2026 Guidelines",
+    electionSymbol: "",
+    slogan: 'अकोला महापालिका निवडणूक 2026 साठी आपले स्वागत आहे!',
     contact: "",
-    area: "अकोला महानगरपालिका सार्वत्रिक निवडणूक २०२६",
-    messageWhatsapp: "भारतीय जनता पक्षाचे अधिकृत उमेदवार  यांना भारतीय जनता पक्षाच्या(कमळ) चिन्हावर  मतदान करून प्रचंड बहुमतांनी विजयी करा.\n*आपले उमेदवार:*\n(अ) सौ दिपाली प्रवीण जगताप\n(ब) सौ अस्मिता प्रकाश वगारे\n(क) गोपाल रघुनाथ मुळे\n(ड)  दिलीप तुळशीराम भरणे\n",
-
-    messagePrinting: "भारतीय जनता पार्टी प्रभाग क्रमांक 14 चे अधिकृत उमेदवार<br>(अ) सौ दिपाली प्रवीण जगताप<br>ब) सौ अस्मिता प्रकाश वगारे<br>क) गोपाल रघुनाथ मुळे<br>(ड) दिलीप तुळशीराम भरणे   <br>यांना <b>कमळ</b> या निशाणी समोरील बटन दाबून प्रचंड बहुमतांनी विजयी करा"
+    area: "अकोला महापालिका निवडणूक 2026",
+    messageWhatsapp: "Akola Election 2026\n",
+    messagePrinting: "Akola Election 2026"
   };
-
   // Load candidate info from localStorage on mount
   useEffect(() => {
     const loadCandidateInfo = () => {
