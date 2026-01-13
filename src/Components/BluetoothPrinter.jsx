@@ -32,8 +32,8 @@ const BluetoothPrinter = ({ voter, familyMembers }) => {
 
   const { candidateInfo } = useCandidate();
 
-  const WEBSITE_URL = "https://jannetaa.vercel.app/preview/Prabhag14BJP";
-  const RECEIPT_IMAGE_URL = "https://www.shutterstock.com/image-vector/rajkot-gujarat-india-10-disember-600nw-2400847277.jpg";
+  const WEBSITE_URL = "";
+  const RECEIPT_IMAGE_URL = "";
 
   // Check if mobile device
   const isMobileDevice = () => {
